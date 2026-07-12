@@ -1,0 +1,34 @@
+<svg width="760" height="200" viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sweepFade" cx="88" cy="88" r="37" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#39d353" stop-opacity="0.05" />
+      <stop offset="60%" stop-color="#39d353" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#39d353" stop-opacity="0.55" />
+    </radialGradient>
+    <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="3.2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g transform="translate(20,20) scale(0.8)">
+    <rect x="2" y="2" width="196" height="196" rx="44" fill="#0d1117" stroke="#30363d" stroke-width="3" />
+    <circle cx="52.4" cy="74.3" r="3" fill="#8b949e" opacity="0.45" />
+    <circle cx="57.3" cy="119.4" r="3" fill="#8b949e" opacity="0.45" />
+    <path d="M 88 88 L 122.77 75.35 A 37 37 0 0 1 111.78 116.34 Z" fill="url(#sweepFade)" />
+    <circle cx="88" cy="88" r="26" fill="none" stroke="#39d353" stroke-width="1.5" opacity="0.35" />
+    <circle cx="88" cy="88" r="40" fill="none" stroke="#39d353" stroke-width="9" stroke-linecap="round" />
+    <line x1="119.1" y1="119.1" x2="145.5" y2="145.5" stroke="#39d353" stroke-width="16" stroke-linecap="round" />
+    <circle cx="111.78" cy="116.34" r="6.5" fill="#39d353" filter="url(#dotGlow)" />
+  </g>
+
+  <text x="215" y="122" font-family="DejaVu Sans Mono, ui-monospace, Consolas, monospace" font-weight="bold" font-size="56" letter-spacing="-1">
+    <tspan fill="#39d353">$</tspan><tspan fill="#e6edf3"> ghscanner</tspan>
+  </text>
+  <text x="216" y="152" font-family="DejaVu Sans Mono, ui-monospace, Consolas, monospace" font-size="17" fill="#8b949e" letter-spacing="0.5">
+    public GitHub metadata, scanned
+  </text>
+</svg>

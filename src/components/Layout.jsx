@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-
+import logo from "../assets/footer.svg";
 export default function Layout() {
   return (
     <div className="site">
@@ -23,6 +23,17 @@ export default function Layout() {
           <Link to="/privacy">Privacy</Link>
           <Link to="/terms">Terms</Link>
         </div>
+        <Link to="/" className="brand">
+          <img
+            src={logo}
+            alt="ghscanner logo"
+            style={{
+              width: "150px",
+              height: "150px",
+              display: "block",
+            }}
+          />
+        </Link>
       </footer>
     </div>
   );
