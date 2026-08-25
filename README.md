@@ -1,5 +1,7 @@
 # ghscanner [ beta ]
 
+**Current release:** `v0.3.0` · See [CHANGELOG.md](./CHANGELOG.md) for the release history.
+
 ghscanner is a simple tool that looks up a GitHub username and shows what's publicly visible about that account: profile info, activity, contribution history, and any email addresses left in public commit metadata.
 
 ![preview image](./public/images/preview.png)
