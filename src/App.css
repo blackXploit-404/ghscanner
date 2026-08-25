@@ -193,6 +193,34 @@ th { color: var(--muted); font-weight: 500; font-size: 0.7rem; text-transform: u
 .confidence-medium { background: rgba(210,153,34,0.15); color: var(--warn); }
 .confidence-low { background: rgba(139,148,158,0.15); color: var(--muted); }
 
+.auditSummary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0 0 1rem;
+}
+.auditSummary div {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+}
+.auditSummary strong { display: block; font-size: 1rem; color: var(--text); }
+.auditSummary span { color: var(--muted); font-size: 0.68rem; }
+.partialNotice {
+  margin: 0 0 1rem;
+  padding: 8px 10px;
+  border-left: 2px solid var(--warn);
+  color: var(--warn);
+  background: rgba(210,153,34,0.08);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.evidenceCell a { color: var(--accent); text-decoration: none; }
+.evidenceCell a:hover { text-decoration: underline; }
+.evidenceCell small { display: block; color: var(--muted); margin-top: 4px; font-size: 0.68rem; }
+.auditNote { color: var(--muted); font-size: 0.72rem; line-height: 1.5; margin: 1rem 0 0; }
+
 /* ---------- languages ---------- */
 .langList { display: flex; flex-direction: column; gap: 8px; }
 .langRow { display: grid; grid-template-columns: 90px 1fr 30px; align-items: center; gap: 10px; font-size: 0.8rem; }
@@ -260,6 +288,7 @@ th { color: var(--muted); font-weight: 500; font-size: 0.7rem; text-transform: u
   .searchbar button { width: 100%; }
   .nav { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
   .langRow { grid-template-columns: 70px 1fr 24px; }
-  .cardHeaderRow { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .cardHeaderRow { flex-direction: column; align-items: flex-start; }
+  .auditSummary { grid-template-columns: repeat(2, 1fr); }
   .footer { flex-direction: column; text-align: center; }
 }

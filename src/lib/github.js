@@ -45,6 +45,7 @@ export const EVENT_LABELS = {
   ReleaseEvent: "published a release on",
   PullRequestReviewEvent: "reviewed a PR on",
 };
+
 export function confidenceFor(hit) {
   if (hit.fromProfile) return "high";
   if (hit.occurrences >= 5 && hit.repos.length >= 2) return "high";
@@ -54,33 +55,45 @@ export function confidenceFor(hit) {
 
 export function aggregate(hits, profileEmail) {
   const map = new Map();
-  for (const { email, repo } of hits) {
-    const trimmed = email.trim();
+  for (const hit of hits) {
+    const trimmed = hit.email?.trim();
     if (!trimmed || !trimmed.includes("@")) continue;
     const existing = map.get(trimmed);
+    const evidence = {
+      repo: hit.repo,
+      repoUrl: hit.repoUrl,
+      sha: hit.sha,
+      commitUrl: hit.commitUrl,
+      role: hit.role || "commit metadata",
+      observedAt: hit.observedAt,
+    };
     if (existing) {
       existing.occurrences += 1;
-      existing.repos.add(repo);
+      existing.repos.add(hit.repo);
+      existing.evidence.push(evidence);
     } else {
       map.set(trimmed, {
         email: trimmed,
         kind: classifyEmail(trimmed),
         occurrences: 1,
-        repos: new Set([repo]),
+        repos: new Set([hit.repo]),
         fromProfile: false,
+        evidence: [evidence],
       });
     }
   }
   if (profileEmail) {
-    const existing = map.get(profileEmail);
+    const trimmed = profileEmail.trim();
+    const existing = map.get(trimmed);
     if (existing) existing.fromProfile = true;
     else
-      map.set(profileEmail, {
-        email: profileEmail,
-        kind: "real",
+      map.set(trimmed, {
+        email: trimmed,
+        kind: classifyEmail(trimmed),
         occurrences: 1,
         repos: new Set(),
         fromProfile: true,
+        evidence: [{ role: "public profile", observedAt: null }],
       });
   }
   return [...map.values()]

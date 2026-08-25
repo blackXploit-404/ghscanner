@@ -1,22 +1,65 @@
-export function downloadEmailsCsv(username, emails) {
-  const header = "email,confidence,kind,occurrences,repos\n";
-  const rows = emails
-    .map((e) =>
-      [
-        e.email,
-        e.confidence,
-        e.kind,
-        e.occurrences,
-        `"${e.repos.join("; ")}"`,
-      ].join(",")
-    )
-    .join("\n");
+function csvCell(value) {
+  return `"${String(value ?? "").replaceAll('"', '""')}"`;
+}
 
-  const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+export function downloadEmailsCsv(username, emails) {
+  const header = [
+    "email",
+    "confidence",
+    "kind",
+    "occurrences",
+    "repos",
+    "source_role",
+    "source_repo",
+    "commit_sha",
+    "commit_url",
+    "observed_at",
+  ].join(",");
+
+  const rows = emails.flatMap((email) => {
+    const evidence = email.evidence?.length ? email.evidence : [{}];
+    return evidence.map((source) =>
+      [
+        email.email,
+        email.confidence,
+        email.kind,
+        email.occurrences,
+        email.repos.join("; "),
+        source.role,
+        source.repo,
+        source.sha,
+        source.commitUrl,
+        source.observedAt,
+      ].map(csvCell).join(",")
+    );
+  });
+
+  const blob = new Blob([[header, ...rows].join("\n") + "\n"], {
+    type: "text/csv;charset=utf-8;",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${username}-github-emails.csv`;
+  a.download = `${username}-github-exposure-audit.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function downloadEmailsJson(username, emails) {
+  const report = {
+    tool: "ghscanner",
+    version: "0.3.0",
+    username,
+    generatedAt: new Date().toISOString(),
+    results: emails,
+  };
+  const blob = new Blob([JSON.stringify(report, null, 2)], {
+    type: "application/json;charset=utf-8;",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${username}-github-exposure-audit.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

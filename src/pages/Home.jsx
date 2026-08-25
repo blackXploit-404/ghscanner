@@ -38,6 +38,7 @@ export default function Home() {
   const [languages, setLanguages] = useState([]);
   const [bestRepos, setBestRepos] = useState([]);
   const [reposScanned, setReposScanned] = useState(0);
+  const [scanMeta, setScanMeta] = useState(null);
 
   const authHeaders = useCallback(
     () => (token.trim() ? { Authorization: `Bearer ${token.trim()}` } : {}),
@@ -72,6 +73,7 @@ export default function Home() {
     setLanguages([]);
     setBestRepos([]);
     setReposScanned(0);
+    setScanMeta(null);
 
     try {
       setProgress("fetching profile...");
@@ -91,22 +93,36 @@ export default function Home() {
 
       const scanTargets = ownRepos.slice(0, 15);
       const hits = [];
+      let commitsInspected = 0;
+      let partial = false;
       for (let i = 0; i < scanTargets.length; i++) {
         const repo = scanTargets[i];
         setProgress(`scanning commits ${i + 1}/${scanTargets.length}: ${repo.name}`);
         try {
           const commits = await ghFetch(`/repos/${uname}/${repo.name}/commits?per_page=30`);
+          commitsInspected += commits.length;
           for (const c of commits) {
+            const baseEvidence = {
+              repo: repo.name,
+              repoUrl: repo.html_url,
+              sha: c.sha,
+              commitUrl: c.html_url,
+              observedAt: c.commit?.author?.date || c.commit?.committer?.date || null,
+            };
             const aEmail = c.commit?.author?.email;
             const cEmail = c.commit?.committer?.email;
-            if (aEmail) hits.push({ email: aEmail, repo: repo.name });
-            if (cEmail) hits.push({ email: cEmail, repo: repo.name });
+            if (aEmail) hits.push({ ...baseEvidence, email: aEmail, role: "author metadata" });
+            if (cEmail) hits.push({ ...baseEvidence, email: cEmail, role: "committer metadata" });
           }
         } catch (err) {
-          if (err.message === "RATE_LIMITED") break;
+          if (err.message === "RATE_LIMITED") {
+            partial = true;
+            break;
+          }
         }
       }
       setReposScanned(scanTargets.length);
+      setScanMeta({ commitsInspected, partial, requestedRepos: scanTargets.length });
       setEmails(aggregate(hits, user.email));
     } catch (err) {
       if (err.message === "NOT_FOUND") setError(`No GitHub user named "${uname}".`);
@@ -150,7 +166,14 @@ export default function Home() {
 
       {profile && <ProfileCard user={profile} orgs={orgs} />}
       {profile && <ContributionChart data={contributions} />}
-      {profile && <EmailResults username={username} emails={emails} reposScanned={reposScanned} />}
+      {profile && (
+        <EmailResults
+          username={username}
+          emails={emails}
+          reposScanned={reposScanned}
+          scanMeta={scanMeta}
+        />
+      )}
       {profile && <LanguageChart languages={languages} />}
       {profile && <TopRepos repos={bestRepos} />}
       {profile && <ActivityFeed events={events} />}
