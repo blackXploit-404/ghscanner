@@ -24,10 +24,13 @@ ghscanner leverages GitHub's public API and scrapes commit metadata to find emai
 
 - **Fetch User Profile** - Retrieves public profile information
 - **Scan Commit History** - Analyzes public commit data across repositories to extract email addresses from commit metadata
-- **Filter & Validate** - Filters out GitHub's noreply email addresses and validates real email formats
-- **Display Results** - Presents all found information in a clean, organized interface
-- **Download** - you can download all results in csv format as well.
+- **Detect Secrets & Tokens** - Inspects added lines in available public commit patches for common credential patterns, including GitHub, AWS, Slack, Google, Stripe, SendGrid, JWT, private keys, and generic secret assignments
+- **Filter & Validate** - Filters out GitHub's noreply email addresses, validates real email formats, and labels secret matches as potential exposures
+- **Display Results** - Presents evidence, severity, source locations, and masked findings in a clean, organized interface
+- **Download** - You can download email evidence and masked secret findings as CSV files, plus JSON email reports.
 ## Disclaimer
+
+Secret detection is pattern-based and may produce false positives. It only scans added lines from public commit patches available through GitHub's API, and full matched credential values are never displayed or exported.
 
 This tool is built for **educational and OSINT research purposes only**. All information gathered is publicly available on GitHub. Always respect:
 

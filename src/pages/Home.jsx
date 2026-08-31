@@ -7,9 +7,11 @@ import {
   topLanguages,
   topRepos,
 } from "../lib/github";
+import { aggregateSecretFindings, detectSecretsFromPatch } from "../lib/secrets";
 import ProfileCard from "../components/ProfileCard";
 import ContributionChart from "../components/ContributionChart";
 import EmailResults from "../components/EmailResults";
+import SecretResults from "../components/SecretResults";
 import ActivityFeed from "../components/ActivityFeed";
 import LanguageChart from "../components/LanguageChart";
 import TopRepos from "../components/TopRepos";
@@ -39,6 +41,7 @@ export default function Home() {
   const [bestRepos, setBestRepos] = useState([]);
   const [reposScanned, setReposScanned] = useState(0);
   const [scanMeta, setScanMeta] = useState(null);
+  const [secretFindings, setSecretFindings] = useState([]);
 
   const authHeaders = useCallback(
     () => (token.trim() ? { Authorization: `Bearer ${token.trim()}` } : {}),
@@ -74,6 +77,7 @@ export default function Home() {
     setBestRepos([]);
     setReposScanned(0);
     setScanMeta(null);
+    setSecretFindings([]);
 
     try {
       setProgress("fetching profile...");
@@ -94,7 +98,9 @@ export default function Home() {
       const scanTargets = ownRepos.slice(0, 15);
       const hits = [];
       let commitsInspected = 0;
+      let patchesInspected = 0;
       let partial = false;
+      const secretHits = [];
       for (let i = 0; i < scanTargets.length; i++) {
         const repo = scanTargets[i];
         setProgress(`scanning commits ${i + 1}/${scanTargets.length}: ${repo.name}`);
@@ -113,6 +119,17 @@ export default function Home() {
             const cEmail = c.commit?.committer?.email;
             if (aEmail) hits.push({ ...baseEvidence, email: aEmail, role: "author metadata" });
             if (cEmail) hits.push({ ...baseEvidence, email: cEmail, role: "committer metadata" });
+
+            try {
+              const detail = await ghFetch(`/repos/${uname}/${repo.name}/commits/${c.sha}`);
+              for (const file of detail.files || []) {
+                if (!file.patch) continue;
+                patchesInspected += 1;
+                secretHits.push(...detectSecretsFromPatch(file.patch, { ...baseEvidence, file: file.filename }));
+              }
+            } catch {
+              // A patch can be unavailable for large/binary files; keep the metadata scan usable.
+            }
           }
         } catch (err) {
           if (err.message === "RATE_LIMITED") {
@@ -122,8 +139,9 @@ export default function Home() {
         }
       }
       setReposScanned(scanTargets.length);
-      setScanMeta({ commitsInspected, partial, requestedRepos: scanTargets.length });
+      setScanMeta({ commitsInspected, patchesInspected, partial, requestedRepos: scanTargets.length });
       setEmails(aggregate(hits, user.email));
+      setSecretFindings(aggregateSecretFindings(secretHits));
     } catch (err) {
       if (err.message === "NOT_FOUND") setError(`No GitHub user named "${uname}".`);
       else if (err.message === "RATE_LIMITED")
@@ -174,6 +192,7 @@ export default function Home() {
           scanMeta={scanMeta}
         />
       )}
+      {profile && <SecretResults username={username} findings={secretFindings} scanMeta={scanMeta} />}
       {profile && <LanguageChart languages={languages} />}
       {profile && <TopRepos repos={bestRepos} />}
       {profile && <ActivityFeed events={events} />}

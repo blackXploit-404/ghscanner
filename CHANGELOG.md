@@ -4,7 +4,17 @@ All notable changes to ghscanner are documented here. The project follows [Seman
 
 ## [Unreleased]
 
-This section is for changes that have not been released yet.
+Future changes will be documented here.
+
+## [0.4.0] - 2026-09-01
+
+This release adds privacy-conscious detection of potential secrets and tokens in public commit patches.
+
+### Added
+
+- Public commit patches can be scanned for common secrets and tokens, including GitHub, AWS, Slack, Google, Stripe, SendGrid, JWT, private-key, and generic secret-assignment patterns.
+- Secret findings include severity, masked evidence, file and line location, commit links, and a CSV export.
+- Secret values are never displayed or exported in full; the detector scans added patch lines only and labels matches as potential exposures.
 
 ## [0.3.0] - 2026-08-26
 
@@ -32,6 +42,7 @@ The scanner only reports public GitHub profile and commit metadata seen during t
 
 The beta release provided the original profile lookup experience, including public profile details, activity, contribution history, repository and language summaries, commit-metadata email discovery, personal access token support, and CSV export.
 
-[Unreleased]: https://github.com/blackXploit-404/ghscanner/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/blackXploit-404/ghscanner/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/blackXploit-404/ghscanner/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/blackXploit-404/ghscanner/releases/tag/v0.3.0
 [0.2.0]: https://github.com/blackXploit-404/ghscanner/releases/tag/v0.2.0

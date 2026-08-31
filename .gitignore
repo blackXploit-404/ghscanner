@@ -1,3 +1,6 @@
 node_modules
 files/
 functions/
+
+# Local-only test fixtures
+scripts/test-secrets.mjs

@@ -45,6 +45,28 @@ export function downloadEmailsCsv(username, emails) {
   URL.revokeObjectURL(url);
 }
 
+export function downloadSecretsCsv(username, findings) {
+  const header = ["type", "severity", "masked_value", "file", "line", "repository", "commit_sha", "commit_url", "observed_at"].join(",");
+  const rows = findings.map((finding) => [
+    finding.type,
+    finding.severity,
+    finding.maskedValue,
+    finding.file,
+    finding.line,
+    finding.repo,
+    finding.sha,
+    finding.commitUrl,
+    finding.observedAt,
+  ].map(csvCell).join(","));
+  const blob = new Blob([[header, ...rows].join("\n") + "\n"], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${username}-github-secret-audit.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function downloadEmailsJson(username, emails) {
   const report = {
     tool: "ghscanner",
